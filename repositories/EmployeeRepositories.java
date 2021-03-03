@@ -10,6 +10,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.LinkedList;
+import java.util.List;
 
 public class EmployeeRepositories implements IEmployeeRepositories {
     private final IDB db;
@@ -29,8 +31,8 @@ public class EmployeeRepositories implements IEmployeeRepositories {
             st.setString(2, employee.getName());
             st.setString(3, employee.getAddress());
             st.setString(4, employee.getStatus());
-            st.setString(6, employee.getLevel());
-            st.setString(5, employee.getDepartment());
+            st.setString(5, employee.getLevel());
+            st.setString(6, employee.getDepartment());
             st.execute();
             return true;
         } catch (SQLException throwables) {
@@ -78,7 +80,36 @@ public class EmployeeRepositories implements IEmployeeRepositories {
         }
         return null;
     }
-
+    public Employee getEmployeeLevel(String level) {
+        Connection con = null;
+        try {
+            con = db.getConnection();
+            String sql = "SELECT id,name,address,status,level,department FROM medicine WHERE level=?";
+            PreparedStatement st = con.prepareStatement(sql);
+            st.setString(1, level);
+            ResultSet rs = st.executeQuery();
+            if (rs.next()) {
+                Employee employee = new Employee(rs.getInt("id"),
+                        rs.getString("name"),
+                        rs.getString("address"),
+                        rs.getString("status"),
+                        rs.getString("level"),
+                        rs.getString("department"));
+                return employee;
+            }
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                con.close();
+            } catch (SQLException throwables) {
+                throwables.printStackTrace();
+            }
+        }
+        return null;
+    }
     @Override
        public boolean addProject(BackendDeveloper backendDeveloper) {
             Connection con = null;
@@ -86,13 +117,9 @@ public class EmployeeRepositories implements IEmployeeRepositories {
                 con = db.getConnection();
                 String sql = "INSERT INTO medicine (nameofproject,deadline) VALUES(?,?)";
                 PreparedStatement st = con.prepareStatement(sql);
-                st.setString(1, backendDeveloper.getNameofproject());
+                st.setString(1, backendDeveloper.nameOfProject);
                 st.setInt(2, backendDeveloper.getDeadline());
                 st.execute();
-                String sql2 = "update medicine set nameofproject='?',deadline='?' where id='?'";
-                PreparedStatement st2 = con.prepareStatement(sql2);
-                st2.execute();
-                return true;
             } catch (SQLException throwables) {
                 throwables.printStackTrace();
             } catch (ClassNotFoundException e) {
@@ -128,30 +155,42 @@ public class EmployeeRepositories implements IEmployeeRepositories {
         }
         return false;
     }
-/*
-    public boolean addProject(BackendDeveloper backendDeveloper) {
+    /*
+    @Override
+    public Employee getAllBack() {
         Connection con = null;
         try {
             con = db.getConnection();
-            String sql = "update medicine set nameofproject='?',deadline='?' where id='?'";
+            String sql = "select * from medicine where department='Junior'";
             PreparedStatement st = con.prepareStatement(sql);
-            st.setInt(1, backendDeveloper.getEmpId());
-            st.setString(2, backendDeveloper.getNameofproject());
-            st.setInt(3, backendDeveloper.getDeadline());
             ResultSet rs = st.executeQuery();
-            st.execute();
-            return true;
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
-        } catch (ClassNotFoundException e) {
+            List<Integer> idList = new LinkedList<>();
+            while (rs.next()){
+                idList.add(rs.getInt("id"));
+            }
+            int counter = 0;
+            while (counter < idList.size()){
+                sql = "select name,address from medicine where id = ?";
+                st = con.prepareStatement(sql);
+                st.setInt(1,idList.get(counter));
+                rs = st.executeQuery();
+                counter++;
+                while(rs.next()){
+                    Employee employee= new Employee(rs.getString("name"), rs.getString("address"));
+                    idList.add(employee);
+                }
+            }
+            return idList;
+        }catch (Exception e){
             e.printStackTrace();
-        } finally {
+        }finally {
             try {
                 con.close();
-            } catch (SQLException throwables) {
-                throwables.printStackTrace();
+            }catch (SQLException e){
+                e.printStackTrace();
             }
         }
-        return false;
-    }*/
+        return null;
+    }
+    /*/
 }

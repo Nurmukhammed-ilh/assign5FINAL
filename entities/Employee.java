@@ -7,7 +7,7 @@ public class Employee {
     private String status;
     private String level;
     private String department;
-    public Employee(){
+    public Employee(String name, String address){
     }
     public Employee(int EmpId, String Name, String address, String status, String level, String Department){
         setEmpID(EmpId);
@@ -17,6 +17,10 @@ public class Employee {
         setLevel(level);
         setDepartment(Department);
     }
+
+    public Employee() {
+    }
+
     public void setDepartment(String department){
         this.department=department;
     }

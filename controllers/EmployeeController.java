@@ -26,8 +26,15 @@ public class EmployeeController {
         } else
             return "Employee was not found! Seems like he does not work here";
     }
-    public String addProject(int EmpId,String nameofproject, int deadline) {
-        BackendDeveloper backendDeveloper = new BackendDeveloper(EmpId, nameofproject, deadline);
+    public String getEmpLevel(String level) {
+        Employee employee = repo.getEmployeeLevel(level);
+        if (employee != null) {
+            return employee.toString();
+        } else
+            return "Employees were not found! Seems like employees with that kind of level do not work here";
+    }
+    public String addProject(String nameofproject, int deadline) {
+        BackendDeveloper backendDeveloper = new BackendDeveloper(nameofproject,deadline);
         boolean addpr= repo.addProject(backendDeveloper);
         if (addpr==true) {
             return "Project has added";
@@ -43,3 +50,4 @@ public class EmployeeController {
             return "Employee can not be dismissed.";
     }
 }
+
